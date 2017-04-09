@@ -1,0 +1,16 @@
+{
+  "name": "google-speech-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "dependencies": {
+    "@google-cloud/speech": "^0.8.0",
+    "mic": "^2.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "author": "karamarimo",
+  "license": "ISC"
+}
