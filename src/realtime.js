@@ -10,7 +10,7 @@ const options = {
     'language-code': 'en-US',   // list: https://cloud.google.com/speech/docs/languages
   },
   alias: {
-    f: 'file',          // output file for transcription
+    o: 'output',          // output file for transcription
     k: 'key-file',       // google cloud api key file
     p: 'project-name',  // google cloud project name for speech api
     l: 'language-code',
@@ -38,9 +38,9 @@ let request = {
 };
 
 let outStream;
-if (argv.f) {
+if (argv.o) {
   const fs = require('fs');
-  outStream = fs.createWriteStream(argv.f);
+  outStream = fs.createWriteStream(argv.o);
 }
 
 let recognizeStream = speechClient.createRecognizeStream(request);
@@ -53,20 +53,20 @@ recognizeStream
       process.exit(1);
     } else if (data.results && data.results.length > 0) {
       console.log('[Transcription] ' + data.results);
-      if (argv.f) {
+      if (argv.o) {
         outStream.write(data.results + '\n');
       }
     }
   });
   // .on('end', () => {
   //   console.log('All response returned.');
-  //   if (argv.f) {
+  //   if (argv.o) {
   //     outStream.end();
   //   }
   // });
 
 process.on('exit', (code) => {
-  if (argv.f) {
+  if (argv.o) {
     outStream.end();
   }
   console.log(`Process stopped.`);
@@ -85,7 +85,7 @@ rec.start({
 //     firstSIGINT = false;
 //   } else {
 //     recognizeStream.end();
-//     if (argv.f) {
+//     if (argv.o) {
 //       outStream.end();
 //       console.log(process._getActiveHandles().indexOf(outStream));
 //     }
