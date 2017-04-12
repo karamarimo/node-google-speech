@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "dependencies": {
     "@google-cloud/speech": "^0.8.0",
+    "minimist": "^1.2.0",
     "node-record-lpcm16": "^0.3.0"
   },
   "devDependencies": {},
