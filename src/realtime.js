@@ -19,7 +19,6 @@ const options = {
 };
 
 const argv = minimist(process.argv.slice(2), options);
-console.dir(argv);
 
 let speechClient = speech({
   projectId: argv.p,
@@ -29,12 +28,11 @@ let speechClient = speech({
 let request = {
   config: {
     encoding: 'LINEAR16',
-    sampleRate: argv.s,
+    sampleRateHertz: argv.s,
     languageCode: argv.l
   },
   singleUtterance: false,
   interimResults: false,
-  timeout: 300
 };
 
 let outStream;
@@ -44,13 +42,28 @@ if (argv.o) {
 }
 
 let recognizeStream = speechClient.createRecognizeStream(request);
+let recordStream;
 recognizeStream
-  .on('error', console.error)
+  .on('error', (error) => {
+    console.error(`Error happened: ${error}`);
+  })
   .on('data', (data) => {
     console.log(data);
     if (data.error) {
-      console.error('Error happened.');
-      process.exit(1);
+      console.error('Error response returned from Google Speech API.');
+      console.error(`Error code: ${data.error.code}\nError message: ${data.error.message}`);
+      recognizeStream.name = 'imma recognize@!!!!!!!!!';
+      recordStream.name = 'imma record!!!!!!!!!';
+      recordStream.unpipe();
+      recognizeStream.unpipe();
+      recognizeStream.end();
+      if (argv.o) {
+        outStream.end();
+      }
+      setTimeout(() => {
+        console.log(process._getActiveRequests());
+        console.log(process._getActiveHandles());
+      }, 1000);
     } else if (data.results && data.results.length > 0) {
       console.log('[Transcription] ' + data.results);
       if (argv.o) {
@@ -72,10 +85,12 @@ process.on('exit', (code) => {
   console.log(`Process stopped.`);
 });
 
-rec.start({
+recordStream = rec.start({
   sampleRate : argv.s,
-  verbose : false
-}).pipe(recognizeStream);
+  verbose: true,
+  silence: "1.0"
+});
+// recordStream.pipe(recognizeStream);
 
 // let firstSIGINT = true;
 // process.on('SIGINT', () => {
@@ -92,4 +107,4 @@ rec.start({
 //     console.log('Killed.');
 //   }
 // });
-// console.log('Ctrl-C(SIGINT) to stop.');
+console.log('Listening... Ctrl-C to stop.');
